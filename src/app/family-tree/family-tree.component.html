@@ -1,0 +1,132 @@
+<div class="container">
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button class="toolbar-button" (click)="zoomIn()" title="Zoom In">
+        <i class="fas fa-search-plus"></i>
+      </button>
+      <button class="toolbar-button" (click)="zoomOut()" title="Zoom Out">
+        <i class="fas fa-search-minus"></i>
+      </button>
+      <button class="toolbar-button" (click)="resetZoom()" title="Reset Zoom">
+        <i class="fas fa-compress-arrows-alt"></i>
+      </button>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="toolbar-button" (click)="expandAll()" title="Expand All">
+        <i class="fas fa-angle-double-down"></i>
+      </button>
+      <button class="toolbar-button" (click)="collapseAll()" title="Collapse All">
+        <i class="fas fa-angle-double-up"></i>
+      </button>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="toolbar-button" (click)="centerTree()" title="Center Tree">
+        <i class="fas fa-bullseye"></i>
+      </button>
+      <button class="toolbar-button" (click)="downloadImage()" title="Download as PNG">
+        <i class="fas fa-download"></i>
+      </button>
+      <button class="toolbar-button" [class.active]="isDrawerOpen" (click)="toggleDrawer()" title="Toggle Info Panel">
+        <i class="fas fa-info-circle"></i>
+      </button>
+    </div>
+  </div>
+
+  <div #treeContainer class="tree-container">
+    <!-- D3.js will inject the SVG here -->
+  </div>
+
+  <div class="drawer" [class.open]="isDrawerOpen">
+    <div class="drawer-content" *ngIf="selectedMember">
+      <button class="close-button" (click)="closeDrawer()">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="member-details">
+        <!-- Photo Gallery -->
+        <div class="photo-gallery">
+          <div class="main-photo">
+            <img [src]="currentPhoto" [alt]="selectedMember.name">
+            <div class="gallery-nav" *ngIf="hasMultiplePhotos">
+              <button (click)="prevPhoto()"><i class="fas fa-chevron-left"></i></button>
+              <button (click)="nextPhoto()"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="photo-thumbnails" *ngIf="hasMultiplePhotos">
+            <img *ngFor="let photo of selectedMember.photos; let i = index"
+                 [src]="photo"
+                 [class.active]="currentPhotoIndex === i"
+                 (click)="selectPhoto(i)"
+                 [alt]="selectedMember.name">
+          </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="info-section">
+          <h2>{{ selectedMember.name }}</h2>
+          <div class="basic-info">
+            <p>
+              <i class="fas fa-birthday-cake"></i>
+              <span>{{ selectedMember.birthDate | date:'mediumDate' }}</span>
+              <span class="age">({{ calculateAge(selectedMember.birthDate) }} years)</span>
+            </p>
+            <p>
+              <i [class]="selectedMember.gender === 'male' ? 'fas fa-mars' : 'fas fa-venus'"></i>
+              <span>{{ selectedMember.gender | titlecase }}</span>
+            </p>
+            <p *ngIf="selectedMember.location">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>{{ selectedMember.location }}</span>
+            </p>
+            <p *ngIf="selectedMember.occupation">
+              <i class="fas fa-briefcase"></i>
+              <span>{{ selectedMember.occupation }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Spouse Information -->
+        <div class="info-section" *ngIf="selectedMember.spouse">
+          <h3>Spouse</h3>
+          <div class="spouse-info">
+            <img [src]="selectedMember.spouse.photoUrl" alt="Spouse photo">
+            <div>
+              <h4>{{ selectedMember.spouse.name }}</h4>
+              <p *ngIf="selectedMember.spouse.birthDate">
+                <i class="fas fa-birthday-cake"></i>
+                {{ selectedMember.spouse.birthDate | date:'mediumDate' }}
+              </p>
+              <p *ngIf="selectedMember.spouse.marriageDate">
+                <i class="fas fa-heart"></i>
+                Married on {{ selectedMember.spouse.marriageDate | date:'mediumDate' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="info-section" *ngIf="selectedMember.about">
+          <h3>About</h3>
+          <p class="about-text">{{ selectedMember.about }}</p>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="info-section">
+          <h3>Contact</h3>
+          <div class="contact-info">
+            <p *ngIf="selectedMember.email">
+              <i class="fas fa-envelope"></i>
+              <a [href]="'mailto:' + selectedMember.email">{{ selectedMember.email }}</a>
+            </p>
+            <p *ngIf="selectedMember.phone">
+              <i class="fas fa-phone"></i>
+              <a [href]="'tel:' + selectedMember.phone">{{ selectedMember.phone }}</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
